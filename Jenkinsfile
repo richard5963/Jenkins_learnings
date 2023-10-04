@@ -1,11 +1,11 @@
 pipeline {
-    agent any 
+    agent { label 'slave-2' }
     
     stages{
         stage("Clone Code"){
             steps {
                 echo "Cloning the code"
-                git url:"https://github.com/richard5963/django-notes-app.git", branch: "master"
+                git url:"https://github.com/richard5963/Jenkins_learnings.git", branch:"master"
             }
         }
         stage("Build"){
@@ -18,9 +18,9 @@ pipeline {
             steps {
                 echo "Pushing the image to docker hub"
                 withCredentials([usernamePassword(credentialsId:"dockerHub",passwordVariable:"dockerHubPass",usernameVariable:"dockerHubUser")]){
-                sh "docker tag my-note-app ${env.dockerHubUser}/my-note-app:latest"
+                sh "docker tag my-note-app ${env.dockerHubUser}/notes-app:latest"
                 sh "docker login -u ${env.dockerHubUser} -p ${env.dockerHubPass}"
-                sh "docker push ${env.dockerHubUser}/my-note-app:latest"
+                sh "docker push ${env.dockerHubUser}/notes-app:latest"
                 }
             }
         }
@@ -28,8 +28,9 @@ pipeline {
             steps {
                 echo "Deploying the container"
                 sh "docker-compose down && docker-compose up -d"
-                
             }
         }
     }
 }
+
+
